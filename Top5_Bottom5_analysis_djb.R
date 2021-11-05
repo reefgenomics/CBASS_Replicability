@@ -25,13 +25,15 @@ for (i in 10:nrow(df)) {
     R1_top5<-head(dt1, n=5)
     R1_bot5<-tail(dt1, n=5)
 #output number of overlapping samples in run 2 (i.e., the number of top ranks from run 1 that are in the bottom ranks of run 2)
-    numoverlaptopbottom<-sum(R1_top5$Rank2>R1_bot5$Rank2)
-    numoverlapbottomtop<-sum(R1_bot5$Rank2<R1_top5$Rank2)
+    numoverlapbottomtop = sum(R1_top5$Rank2>min(R1_bot5$Rank2))
+    # numoverlaptopbottom<-sum(R1_top5$Rank2>R1_bot5$Rank2)
+    # numoverlapbottomtop<-sum(R1_bot5$Rank2<R1_top5$Rank2)
 #test whether average ED50s of top 5 are higher than average ED50s of bottom 5
     TestPvalue<-t.test(R1_top5$meanED50,R1_bot5$meanED50,alternative="g")$p.value
-    ResOutput=rbind(ResOutput,data.frame("numsamples"=i, "numoverlapping"=numoverlaptopbottom+numoverlapbottomtop, "pvalue"=TestPvalue))
+    ResOutput=rbind(ResOutput,data.frame("numsamples"=i, "numoverlapping"=numoverlapbottomtop, "pvalue"=TestPvalue))
 }
-  }
+}
+
 sum(ResOutput$pvalue>0.05)
 OutputSummary<-data.frame(
 "numsamples"=10:40,
