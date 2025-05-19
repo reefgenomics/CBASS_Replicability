@@ -1,1 +1,3 @@
-# gspilot_ii
+# CBASS_Replicability
+
+We are often in a situation where we want to know how well results from one CBASS run are captured in a second run, e.g. are the top- and bottom-ranking colonies consistent between seasons, treatments, species, etc. .. the scripts here help with that in that they assess 1. linear correlation between 2 sets of ED50 values, 2. number of significant pairwise comparisions between subsets of original (how sensitive to no. of replicates?), and 3. number of falsely assigned top- or bottom-ranking colonies (e.g., to control for robustness in screening for thermally tolerant colonies)
