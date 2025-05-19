@@ -6,10 +6,13 @@
 library(pacman)
 p_load(readr, Hmisc, data.table, ggplot2, ggpubr, tidyr)
 
+# --- Clear workspace ---
+rm(list = ls())
+
 # --- Parameters --- #
 work_dir <- "./"
 out_path <- "plots/"                 # Output path for plots
-input_folder <- "Input_csv_test/"    # Needs trail "/"
+input_folder <- "input_example/"    # Needs trail "/"
 prefix <- "First-TEST"               # Can also be empty ""
 item_per_group <- 5                  # Number of items in each group (top and bottom)
 
