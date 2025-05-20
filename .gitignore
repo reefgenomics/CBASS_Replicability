@@ -1,3 +1,5 @@
 *.png
 *.xlsx
+*.csv
+*.pdf
 .vscode/
