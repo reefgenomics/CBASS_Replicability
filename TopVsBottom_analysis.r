@@ -130,7 +130,7 @@ for (dataset in names(data_sets)) {
         minoverlap = aggregate(numoverlapping ~ numsamples, min, data = AdjResOutputall)[[2]],
         maxoverlap = aggregate(numoverlapping ~ numsamples, max, data = AdjResOutputall)[[2]],
         medianoverlap = aggregate(numoverlapping ~ numsamples, median, data = AdjResOutputall)[[2]],
-        stddevoverlap = aggregate(numoverlapping ~ numsamples, sd, data = AdjResOutputall)[[2]]
+        stddeverroroverlap = aggregate(numoverlapping ~ numsamples, function(x) sd(x) / sqrt(length(x)), data = AdjResOutputall)[[2]]
     )
 # --- Correlation and Regression --- #
 Spearman.all <- cor.test(data_sets[[dataset]]$ED50_R1, data_sets[[dataset]]$ED50_R2, method = "spearman")
@@ -189,15 +189,15 @@ for (dataset in names(data_sets)) {
         geom_point() +
         geom_errorbar(
             aes(
-                ymin = meanoverlap - stddevoverlap,
-                ymax = meanoverlap + stddevoverlap
+                ymin = meanoverlap - stddeverroroverlap,
+                ymax = meanoverlap + stddeverroroverlap
             ),
-            width = 0.1
+            width = 0.2
         ) +
         theme +
         labs(
             x = "Number of samples",
-            y = "Mean overlap ± 1 stddev",
+            y = "Mean overlap ± 1 stderror",
             title = paste0("Num Sig comparisons top ", item_per_group," vs. bottom ", item_per_group," ED50s")
         )
 
