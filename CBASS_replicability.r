@@ -1,5 +1,6 @@
 # Simple R script for assessing replicability of CBASS runs as a function of sample set size
 # Reads data, makes scatter plots, and computes agreement metrics
+# The script will read all csv files in the folder and process them as individual datasets.
 
 # Load libraries
 library(pacman)
@@ -9,10 +10,11 @@ p_load(readr, dplyr, ggplot2, ggpubr, purrr, tidyr)
 rm(list = ls())
 
 # --- Parameters --- #
-# Set working directory and input/output paths. Input and output folder are relative to the working directory.
+# Set working directory and input/output paths. Input and output folder are relative to the working directory. # Default reads and writes all in the working directory.
 work_dir <- rstudioapi::selectDirectory()   # Select working directory. if working outside RStudio, set manually. e.g.; work_dir <- "/path/to/working/directory"
-out_path <- "./"
-input_folder <- "./"                        # Needs trailing "/". The script will read all csv files in this folder and process them as individual datasets. 
+if (!exists("work_dir")) work_dir <- "."
+out_path <- "./"                            # Default reads and writes all in the working directory.
+input_folder <- "./"                        # Needs trailing "/". # Default reads and writes all in the working directory.
 # --- End Parameters --- #
 
 # --- Functions --- #
