@@ -13,7 +13,7 @@ rm(list = ls())
 # --- Parameters --- #
 # Set working directory and input/output paths. Input and output folder are relative to the working directory. # Default reads and writes all in the working directory.
 work_dir <- rstudioapi::selectDirectory()   # Select working directory. if working outside RStudio, set manually. e.g.; work_dir <- "/path/to/working/directory"
-if (!exists("work_dir")) work_dir <- "."
+if (!exists("work_dir")) work_dir <- "."    # Set working directory if it fails to set in RStudio.
 out_path <- "./"                            # Default reads and writes all in the working directory.
 input_folder <- "./"                        # Needs trailing "/". # Default reads and writes all in the working directory.
 
