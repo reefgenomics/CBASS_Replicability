@@ -4,8 +4,11 @@ We are often in a situation where we want to know how well results from one CBAS
 
 
 Plots:
-- [ED50_replicability.pdf](plots/ED50_replicability.pdf)
-
+![example](plots/markdown_embed_files/ED50_replicability.svg)
+<!-- ![example](plots/scatter_CBASS_run1_run2_ED50s.png) -->
+![example](plots/markdown_embed_files/Example-DATA_CBASS_run1_run2_ED50s_replicability_1000reps_all_1.svg)
+![example](plots/markdown_embed_files/Example-DATA_CBASS_run1_run2_ED50s_replicability_1000reps_all_2.svg)
+![example](plots/markdown_embed_files/Example-DATA_CBASS_run1_run2_ED50s_replicability_1000reps_all_3.svg)
 
 Repo folder structure:
 
@@ -27,8 +30,3 @@ Repo folder structure:
 └── README.md
 ```
 
-![example](plots/markdown_embed_files/ED50_replicability.svg)
-![example](plots/scatter_CBASS_run1_run2_ED50s.png)
-![example](plots/markdown_embed_files/Example-DATA_CBASS_run1_run2_ED50s_replicability_1000reps_all_1.svg)
-![example](plots/markdown_embed_files/Example-DATA_CBASS_run1_run2_ED50s_replicability_1000reps_all_2.svg)
-![example](plots/markdown_embed_files/Example-DATA_CBASS_run1_run2_ED50s_replicability_1000reps_all_3.svg)
