@@ -1,5 +1,5 @@
-# Simple R script for predictive CBASS analysis
-# Reads data, makes scatter plots, and computes predictive agreement metrics
+# Simple R script for assessing replicability of CBASS runs as a function of sample set size
+# Reads data, makes scatter plots, and computes agreement metrics
 
 # Load libraries
 library(pacman)
@@ -9,11 +9,11 @@ p_load(readr, dplyr, ggplot2, ggpubr, purrr, tidyr)
 rm(list = ls())
 
 # --- Parameters --- #
-# Output path
-work_dir <- "./"
-out_path <- "plots/"
-input_folder <- "input_example/" # Needs trailing "/" # This is the folder where the input csv files are stored. The script will read all csv files in this folder and process them as individual datasets. 
-# --- Parameters --- #
+# Set working directory and input/output paths. Input and output folder are relative to the working directory.
+work_dir <- rstudioapi::selectDirectory()   # Select working directory. if working outside RStudio, set manually. e.g.; work_dir <- "/path/to/working/directory"
+out_path <- "./"
+input_folder <- "./"                        # Needs trailing "/". The script will read all csv files in this folder and process them as individual datasets. 
+# --- End Parameters --- #
 
 # --- Functions --- #
 # Function that reads all the CSV in a folder (for "multiple dataset" processing)
@@ -42,13 +42,13 @@ get_subsets <- function(items, k, max_subsets = 1000) {
     }
 }
 
-# Run predictive experiment: midpoint threshold of range
-# This function evaluates predictive agreement by:
+# Assess replicability using midpoint threshold of range
+# This function evaluates agreement by:
 # - Iterating over decreasing subset sizes (from n to 2)
 # - For each subset size k, generating up to 1000 random subsets of k samples
 # - For each subset, computing a threshold (midpoint of min/max) for ED50_R1 and ED50_R2
 # - Calculating the proportion of samples where the binary classification (above/below threshold) agrees between ED50_R1 and ED50_R2
-# - Aggregating the mean and standard deviation of these proportions for each k
+# - Aggregating the mean and standard_error of these proportions for each k
 # Returns a tibble with columns: samples (k), mean_prop, sd_prop
 run_predictive <- function(df) {
     n <- nrow(df)
@@ -64,15 +64,17 @@ run_predictive <- function(df) {
         results <- bind_rows(results,
             tibble(samples = k,
                             mean_prop = mean(props),
-                            sd_prop = sd(props))
+                            se_prop = sd(props)/sqrt(length(props))
+                        )
         )
     }
     return(results)
 }
+
 # --- End Functions --- #
 
 # --- plotting theme  --- #
-theme <- theme_minimal() +
+theme <- theme_minimal(base_size = 14) +
     theme(
         strip.text.y = element_blank(),
         strip.text.x = element_text(size = 12),
@@ -88,7 +90,7 @@ theme <- theme_minimal() +
 # --- end theme  --- #
 
 # load data
-data_sets <- read_data_cbass_com(paste0(work_dir, input_folder))
+data_sets <- read_data_cbass_com(paste0(work_dir, "/", input_folder))
 
 # Scatter plots
 for(name in names(data_sets)){
@@ -101,7 +103,7 @@ for(name in names(data_sets)){
         xlim(min(dat$ED50_R1,dat$ED50_R2, na.rm = TRUE) - 0.5, max(dat$ED50_R1,dat$ED50_R2, na.rm = TRUE)+ 0.5) +
         ylim(min(dat$ED50_R1,dat$ED50_R2, na.rm = TRUE) - 0.5, max(dat$ED50_R1,dat$ED50_R2, na.rm = TRUE) + 0.5)
         
-    ggsave(paste0(work_dir, out_path,"scatter_", name, ".png"), p, width = 5, height = 5)
+    ggsave(paste0(work_dir , "/", out_path,"scatter_", name, ".png"), p, width = 5, height = 5)
 }
 
 # calculate and plot predictive agreement
@@ -111,20 +113,30 @@ for (name in names(data_sets)) {
     res <- run_predictive(data_sets[[name]])
     p <- ggplot(res, aes(x = samples, y = mean_prop)) +
         geom_point() +
-        geom_errorbar(aes(ymin = mean_prop - sd_prop, ymax = mean_prop + sd_prop), width = 0.5) +
-        scale_x_reverse() +
+        geom_errorbar(aes(ymin = mean_prop - se_prop, ymax = mean_prop + se_prop), width = 0.2) +
+        scale_x_reverse(breaks = seq(min(res$samples), max(res$samples))) +
+        scale_y_continuous(breaks = seq(0, 1.2, by = 0.2), limits = c(0, 1.2)) +
         theme +
-        labs(title = paste("Recombinations -", name), x = "Number of samples", y = "Proportion correct") +
-        ylim(0, 1.5)
+        labs(title = paste0("Replicability-", name), x = "Number of samples", y = "Proportion correct")
     predictive_list[[name]] <- p
 }
 
 # Arrange all plots in predictive_list; if less than 4, all in one row, else 1 row and 2 columns
 n_plots <- length(predictive_list)
-if (n_plots < 4) {
+if (n_plots == 1) {
     group_plot <- ggarrange(plotlist = predictive_list, nrow = 1)
         ggsave(
-            filename = paste0(work_dir, out_path, "subsets_agreement_check.pdf"),
+            filename = paste0(work_dir, "/", out_path, "ED50_replicability.pdf"),
+            plot = group_plot,
+            height = 21,
+            width = 14.85,
+            units = "cm",
+            dpi = 300
+        )
+    } else if (n_plots < 4) {
+    group_plot <- ggarrange(plotlist = predictive_list, nrow = 1)
+        ggsave(
+            filename = paste0(work_dir, "/", out_path, "ED50_replicability.pdf"),
             plot = group_plot,
             height = 21,
             width = 29.7,
@@ -134,7 +146,7 @@ if (n_plots < 4) {
     } else if (n_plots >= 4 && n_plots <= 6) {
     group_plot <- ggarrange(plotlist = predictive_list, nrow = 2, ncol = 3)
         ggsave(
-        filename = paste0(work_dir, out_path, "subsets_agreement_check.pdf"),
+        filename = paste0(work_dir, "/", out_path, "ED50_replicability.pdf"),
         plot = group_plot,
         height = 21,
         width = 29.7,
@@ -145,7 +157,7 @@ if (n_plots < 4) {
     group_plot <- ggarrange(plotlist = predictive_list, ncol = 3, nrow = 2)
     ggexport(
         plotlist = group_plot,
-        filename = paste0(work_dir, out_path, "subsets_agreement_check.pdf"),
+        filename = paste0(work_dir, "/", out_path, "ED50_replicability.pdf"),
         height = 21,
         width = 29.7,
         units = "cm",

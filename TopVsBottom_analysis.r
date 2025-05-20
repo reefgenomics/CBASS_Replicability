@@ -10,11 +10,14 @@ p_load(readr, Hmisc, data.table, ggplot2, ggpubr, tidyr)
 rm(list = ls())
 
 # --- Parameters --- #
-work_dir <- "./"
-out_path <- "plots/"                 # Output path for plots
-input_folder <- "input_example/"    # Needs trail "/"
-prefix <- "First-TEST"               # Can also be empty ""
-item_per_group <- 5                  # Number of items in each group (top and bottom)
+# Set working directory and input/output paths. Input and output folder are relative to the working directory.
+work_dir <- rstudioapi::selectDirectory()   # Select working directory. if working outside RStudio, set manually. e.g.; work_dir <- "/path/to/working/directory"
+out_path <- "./"
+input_folder <- "input_example/" #"./"                        # Needs trailing "/". The script will read all csv files in this folder and process them as individual datasets. 
+
+prefix <- "First-TEST"                      # Can also be empty ""
+item_per_group <- 3                         # Number of items in each group (top and bottom)
+# --- End Parameters --- #
 
 # --- Functions --- #
 # Read data
@@ -48,7 +51,7 @@ read_data_cbass_com <- function(path_to_csv_folder) {
 # --- End Parameters --- #
 # --- End Setup --- #
 
-data_sets <- read_data_cbass_com(paste0(work_dir, input_folder))
+data_sets <- read_data_cbass_com(paste0(work_dir, "/", input_folder))
 
 results_list <- list()
 for (dataset in names(data_sets)) {
@@ -62,17 +65,17 @@ for (dataset in names(data_sets)) {
 
     # --- Main Simulation Loop --- #
     # --- Random Sampling and Analysis --- #
-    for (i in 10:nrow(data_sets[[dataset]])) {
+    for (i in (item_per_group * 2):nrow(data_sets[[dataset]])) {
         for (j in 1:1000) {
             # Randomly sample i rows
             x <- data_sets[[dataset]][sample(nrow(data_sets[[dataset]]), i), ]
             # gets the top and bottom N genet. Adding up the number of overlapping genets between the two groups.
-            R1_top <- x[order(x$ED50_R1, decreasing = TRUE)[1:5], ]
-            R1_bot <- x[order(x$ED50_R1, decreasing = FALSE)[1:5], ]
+            R1_top <- x[order(x$ED50_R1, decreasing = TRUE)[1:item_per_group], ]
+            R1_bot <- x[order(x$ED50_R1, decreasing = FALSE)[1:item_per_group], ]
             R1_top_genets <- R1_top$ID
             R1_bot_genets <- R1_bot$ID
-            R2_top5_genets <- x$ID[order(x$ED50_R2, decreasing = TRUE)[1:5]]
-            R2_bot5_genets <- x$ID[order(x$ED50_R2, decreasing = FALSE)[1:5]]
+            R2_top5_genets <- x$ID[order(x$ED50_R2, decreasing = TRUE)[1:item_per_group]]
+            R2_bot5_genets <- x$ID[order(x$ED50_R2, decreasing = FALSE)[1:item_per_group]]
             numoverlaptopbottom <- mean(c(
                 sum(R1_top_genets %in% R2_bot5_genets),
                 sum(R1_bot_genets %in% R2_top5_genets)
@@ -118,7 +121,7 @@ for (dataset in names(data_sets)) {
 
     # --- Summarize Results --- #
     OutputSummaryall <- data.frame(
-        numsamples = 10:nrow(data_sets[[dataset]]),
+        numsamples = (item_per_group * 2):nrow(data_sets[[dataset]]),
         Sigttestpadj = aggregate(Ttestpadj ~ numsamples, function(x) sum(x < 0.05), data = AdjResOutputall)[[2]],
         SigWilcoxpadj = aggregate(Wilcoxtestpadj ~ numsamples, function(x) sum(x < 0.05), data = AdjResOutputall)[[2]],
         meanoverlap = aggregate(numoverlapping ~ numsamples, mean, data = AdjResOutputall)[[2]],
@@ -176,7 +179,7 @@ for (dataset in names(data_sets)) {
         labs(
             x = "Number of samples",
             y = "Number of significant comparisons",
-            title = paste0("Num Sig comparisons top ", item_per_group," vs. bottom ", item_per_group,"  ED50s"))
+            title = paste0("Num Sig comparisons top ", item_per_group," vs. bottom ", item_per_group," ED50s"))
 
     # 3. Errorbar plot for mean overlap ± 1 stddev
     p3 <- ggplot(Output_Summary_all_list[[dataset]], aes(x = numsamples, y = meanoverlap)) +
@@ -187,20 +190,20 @@ for (dataset in names(data_sets)) {
                 ymin = meanoverlap - stddevoverlap,
                 ymax = meanoverlap + stddevoverlap
             ),
-            width = 0.2
+            width = 0.1
         ) +
         theme +
         labs(
             x = "Number of samples",
             y = "Mean overlap ± 1 stddev",
-            title = paste0("Num Sig comparisons top ", item_per_group," vs. bottom ", item_per_group,"  ED50s")
+            title = paste0("Num Sig comparisons top ", item_per_group," vs. bottom ", item_per_group," ED50s")
         )
 
     # 4. Save plots
     pdf_name <- if (prefix == "") {
-        paste0(work_dir, out_path, dataset, "_replicability_1000reps.pdf")
+        paste0(work_dir, "/", out_path, dataset, "_replicability_1000reps.pdf")
         } else {
-        paste0(work_dir, out_path, prefix, "_", dataset, "_replicability_1000reps_all.pdf")
+        paste0(work_dir, "/", out_path, prefix, "_", dataset, "_replicability_1000reps_all.pdf")
     }
 
     # # Option to save all plots in one image. off by default.
