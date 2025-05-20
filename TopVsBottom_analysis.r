@@ -1,5 +1,6 @@
 # Simple R script for analysis of CBASS ED50 data replicability
 # Reads data, makes scatter plots, and computes predictive agreement metrics
+# The script will read all csv files in the folder and process them as individual datasets.
 
 # --- Setup --- #
 # Load required libraries
@@ -10,13 +11,14 @@ p_load(readr, Hmisc, data.table, ggplot2, ggpubr, tidyr)
 rm(list = ls())
 
 # --- Parameters --- #
-# Set working directory and input/output paths. Input and output folder are relative to the working directory.
+# Set working directory and input/output paths. Input and output folder are relative to the working directory. # Default reads and writes all in the working directory.
 work_dir <- rstudioapi::selectDirectory()   # Select working directory. if working outside RStudio, set manually. e.g.; work_dir <- "/path/to/working/directory"
-out_path <- "./"
-input_folder <- "input_example/" #"./"                        # Needs trailing "/". The script will read all csv files in this folder and process them as individual datasets. 
+if (!exists("work_dir")) work_dir <- "."
+out_path <- "./"                            # Default reads and writes all in the working directory.
+input_folder <- "./"                        # Needs trailing "/". # Default reads and writes all in the working directory.
 
-prefix <- "First-TEST"                      # Can also be empty ""
-item_per_group <- 3                         # Number of items in each group (top and bottom)
+prefix <- "Example DATA"                    # Can also be empty ""
+item_per_group <- 5                         # Number of items in each group (top and bottom)
 # --- End Parameters --- #
 
 # --- Functions --- #
@@ -65,7 +67,7 @@ for (dataset in names(data_sets)) {
 
     # --- Main Simulation Loop --- #
     # --- Random Sampling and Analysis --- #
-    for (i in (item_per_group * 2):nrow(data_sets[[dataset]])) {
+    for (i in ((item_per_group * 2):nrow(data_sets[[dataset]]))) {
         for (j in 1:1000) {
             # Randomly sample i rows
             x <- data_sets[[dataset]][sample(nrow(data_sets[[dataset]]), i), ]
@@ -107,7 +109,7 @@ Spearman_all_list <- list()
 for (dataset in names(data_sets)) {
     # --- Adjust P-values --- #
     AdjResOutputall <- data.frame()
-    for (i in 10:nrow(data_sets[[dataset]])) {
+    for (i in (item_per_group * 2):nrow(data_sets[[dataset]])) {
         subset <- results_list[[dataset]][results_list[[dataset]]$numsamples == i, ]
         AdjResOutputall <- rbind(
             AdjResOutputall,
@@ -141,7 +143,7 @@ lm_all_list[[dataset]] <- lm.all
 Spearman_all_list[[dataset]] <- Spearman.all
 }
 
-# --- Plotting LC --- #
+# --- Plotting  --- #
 for (dataset in names(data_sets)) {
     # 1. Scatter plot of ED50_R1 vs ED50_R2 with regression line and annotations
     p1 <- ggplot(data_sets[[dataset]], aes(x = ED50_R1, y = ED50_R2)) +
