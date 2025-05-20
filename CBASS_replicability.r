@@ -130,7 +130,7 @@ if (n_plots == 1) {
         ggsave(
             filename = paste0(work_dir, "/", out_path, "ED50_replicability.pdf"),
             plot = group_plot,
-            height = 21,
+            height = 17,
             width = 14.85,
             units = "cm",
             dpi = 300

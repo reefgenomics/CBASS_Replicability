@@ -38,17 +38,17 @@ read_data_cbass_com <- function(path_to_csv_folder) {
 }
 
 # --- plotting theme  --- #
-        theme <- theme_minimal() +
-            theme(
-                strip.text.y = element_blank(),
-                strip.text.x = element_text(size = 12),
-                panel.grid.minor = element_blank(),  # Hide minor grid lines
-                panel.grid.major = element_blank(),  # Hide minor grid lines
-                legend.key.size = unit(1.5, "lines"),  # Increase legend key size
-                panel.spacing.y = unit(1.2, "lines"),  # Increase spacing between vertical panels
-                panel.border = element_blank(),        # Remove full box border
-                axis.line = element_line(color = "black") # Only x and y axis lines
-            )
+theme <- theme_minimal(base_size = 14) +
+        theme(
+            strip.text.y = element_blank(),
+            strip.text.x = element_text(size = 12),
+            panel.grid.minor = element_blank(),  # Hide minor grid lines
+            panel.grid.major = element_blank(),  # Hide minor grid lines
+            legend.key.size = unit(1.5, "lines"),  # Increase legend key size
+            panel.spacing.y = unit(1.2, "lines"),  # Increase spacing between vertical panels
+            panel.border = element_blank(),        # Remove full box border
+            axis.line = element_line(color = "black") # Only x and y axis lines
+        )
 # --- End plotting theme --- #
 # --- End Parameters --- #
 # --- End Setup --- #
